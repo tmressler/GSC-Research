@@ -2,16 +2,14 @@
 """
 Created on Mon Oct 30 13:57:31 2017
 
-@author: Tim
+@author: Karen Liou, Tim Ressler
 """
 
-class Language():
-    language_constraints = []
-    
+class Language():    
     def __init__(self, name, token, constraints):
         self.name = name
         self.token = token
-        self.language_constraints.append(constraints)
+        self.language_constraints = [constraints]
         
     def __lshift__(self, constraints):
         # adds a set of constraints to Language
@@ -33,14 +31,18 @@ class Language():
         print(self.language_constraints)
      
 class Bin():
-    bin_languages = []
-    
-    def __init__(self, quality):
-        self.quality = quality
+    def __init__(self):
+        self.bin_languages = []
         
     def __lshift__(self, language):
         # adds a language to a bin
+        for bin_language in self.bin_languages:
+            if language.token == bin_language.token:
+                bin_language << language.language_constraints
+                print("Constraints added")
+                return
         self.bin_languages.append(language)
+        print("Language binned")
         
     def __contains__(self, token):
         # searchs a bin for a language token
@@ -57,40 +59,10 @@ class Bin():
     def contents(self):
         # prints the contents of a bin
         print(self.bin_languages)
-   
-def info():
-    print("""GSCbins README
-
-class Language()
-To create a language:
-    language1 = Language("totally faithful", "LHO LHC SHO SHC LLC SLC LLO SLO", (-0.5, -0.5, -1, -1))
-
-To add another set of constraints to a language:
-    language1 << (-0.5, -0.6, -1, -1)
-
-To see if a set of contraints is in a language:
-    (-0.5, -0.6, -1, -1) in language1
-
-To count number of sets of constraints for a language:
-    len(language1)
-    
-To print contents of a language:
-    language1.contents()
-
-class Bin()
-To create a bin:
-    good_bin = Bin('good')
-
-To add a language to a bin:
-    good_bin << language1
-    
-To return a list of language tokens in a bin:
-    good_bin.tokens_list()
-
-To see if a language token is in a bin:
-    "SHO SHC SHO SHC LLC SLC LLO SLO" in good_bin
-    
-To see this information again:
-    GSCbins.info()""")       
         
-info()
+    def token(self, token):
+        # returns the address of the token argument, if it is in Bin
+        for language in self.bin_languages:
+            if token == language.token:
+                return language
+        raise IndexError("token not in bin")
