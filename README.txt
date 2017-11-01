@@ -29,6 +29,14 @@ To add a language to a bin:
 To see if a language token is in a bin:
     "SHO SHC SHO SHC LLC SLC LLO SLO" in good_bin
 
+To return the address of a set of contraints in a bin:
+    good_bin.constraint_set((-0.5, -0.5, -1, -1))
+
+    You can then do all Language operations on the returned address:
+        good_bin.constraint_set((-0.5, -0.5, -1, -1)) << (-0.5, -0.6, -1, -1)
+        good_bin.constraint_set((-0.5, -0.5, -1, -1)).constraints
+        etc.
+
 To count how many languages are in a bin:
     good_bin.count()
 
@@ -38,7 +46,7 @@ To return a list of language tokens in a bin:
 To return the address of a specific language token in a bin:
     good_bin.token("SHO SHC SHO SHC LLC SLC LLO SLO")
 
-    You can then do all Language operations on the token:
+    You can then do all Language operations on the returned address:
         good_bin.token("SHO SHC SHO SHC LLC SLC LLO SLO") << (-0.5, -0.6, -1, -1)
         good_bin.token("SHO SHC SHO SHC LLC SLC LLO SLO").constraints
         etc.

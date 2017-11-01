@@ -14,6 +14,7 @@ class Language():
     # adds a set of constraints to Language
     def __lshift__(self, set_of_constraints):
         self.constraints.append(set_of_constraints)
+        print("Constraints added")
         
     # returns True if a set of costraints is in Language
     def __contains__(self, set_of_constraints):
@@ -38,7 +39,6 @@ class Bin():
             if new_language.token == language.token:
                 for set_of_constraints in new_language.constraints:
                     language << set_of_constraints
-                print("Constraints added")
                 return
 
         # addes language to bin
@@ -51,6 +51,12 @@ class Bin():
             if token == language.token:
                 return True
         return False
+    
+    def constraint_set(self, set_of_constraints):
+        for language in self.languages:
+            if set_of_constraints in language.constraints:
+                return language
+        raise IndexError("set of constraints is not in bin")
     
     # returns the number of languages in a bin
     def count(self):
