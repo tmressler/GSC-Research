@@ -52,6 +52,7 @@ class Bin():
                 return True
         return False
     
+    # returns the first language found with a set of constraints
     def constraint_set(self, set_of_constraints):
         for language in self.languages:
             if set_of_constraints in language.constraints:
