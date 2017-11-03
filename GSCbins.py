@@ -26,6 +26,9 @@ class Language():
     # returns the number of constraints
     def count(self):
         return len(self.constraints)
+    
+    def constraints_range(self):
+        pass
         
 class Bin():
     def __init__(self):

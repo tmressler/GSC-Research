@@ -20,16 +20,50 @@ data_file = xlrd.open_workbook('typologyFFC.xlsx', on_demand=True)
 data = data_file.sheet_by_index(0)
 
 # creates a big for all languages (not sure how to sort the file we have yet)
-general_bin = Bin()
+good_bin = Bin()
+trash_bin = Bin()
 
 # creates langauges and adds them to bin
 rows = data.get_rows()
 next(rows)
 for row in rows:
-    general_bin << Language(row[20].value, None, (row[0].value, row[1].value, row[2].value, row[3].value))
+    language = Language(row[20].value, None, (row[0].value, row[1].value, row[2].value, row[3].value))
+    if language.token == 'LHLLSHSL':
+        language.description = 'totally faithful'
+        good_bin << language
+    elif language.token == 'LLLLSHSL':
+        language.description = 'lowering of LH vowels'
+        good_bin << language
+    elif language.token == 'SHLLSHSL':
+        language.description = 'shortening of LH vowels'
+        good_bin << language
+    elif language.token == 'SHSLSHSL':
+        language.description = 'shortening of long vowels'
+        good_bin << language
+    elif language.token == 'SLSLSHSL':
+        language.description = 'lowering of LH vowels + shortening of long vowels'
+        good_bin << language
+    else:
+        language.description = 'lowering and shortening of LH vowels'
+        trash_bin << language
+   
+
     
 '''
-Language Notes
+For LHLLSHSL input
+Good:
+    LH LL SH SL, totally faithful
+    LL LL SH SL, lowering of LH vowels
+    SH LL SH SL, shortening of LH vowels
+    SH SL SH SL, shortening of long vowels
+    SL SL SH SL, lowering of LH vowels + shortening of long vowels
+
+Trash:
+    SL LL SH SL, lowering and shortening of LH vowels
+''' 
+    
+'''
+General Language Notes
 Good:
     LHOLHCSHOSHCLLCSLCLLOSLO, total faithfulness
     SHOSHCSHOSHCLLCSLCLLOSLO, shortening of long high vowels
