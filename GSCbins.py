@@ -6,7 +6,7 @@ Created on Mon Oct 30 13:57:31 2017
 """
         
 class Language():    
-    def __init__(self, token, description, set_of_constraints):
+    def __init__(self, token, set_of_constraints, description=None):
         self.token = token
         self.description = description
         self.constraints = [set_of_constraints]
@@ -65,17 +65,21 @@ class Bin():
     # returns the number of languages in a bin
     def count(self):
         return len(self.languages)
-       
-    # returns a list of language tokens in a bin
-    def tokens_list(self):
-        tokens_list = []
-        for language in self.languages:
-            tokens_list.append(language.token)
-        return tokens_list
+
+    # empties a bin of its languages
+    def empty(self):
+        self.languages = []
        
     # returns the address of the token argument
     def token(self, token):
         for language in self.languages:
             if token == language.token:
                 return language
-        raise IndexError("token not in bin")
+        raise IndexError("token not in bin")    
+    
+    # returns a list of language tokens in a bin
+    def tokens_list(self):
+        tokens_list = []
+        for language in self.languages:
+            tokens_list.append(language.token)
+        return tokens_list
