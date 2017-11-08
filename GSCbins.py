@@ -14,7 +14,6 @@ class Language():
     # adds a set of constraints to Language
     def __lshift__(self, set_of_constraints):
         self.constraints.append(set_of_constraints)
-        print("Constraints added")
         
     # returns True if a set of costraints is in Language
     def __contains__(self, set_of_constraints):
@@ -46,7 +45,6 @@ class Bin():
 
         # addes language to bin
         self.languages.append(new_language)
-        print("Language binned")
       
     # searchs a bin for a language token
     def __contains__(self, token):
@@ -69,6 +67,9 @@ class Bin():
     # empties a bin of its languages
     def empty(self):
         self.languages = []
+        
+    def save(self, filename):
+        pass
        
     # returns the address of the token argument
     def token(self, token):
@@ -83,3 +84,62 @@ class Bin():
         for language in self.languages:
             tokens_list.append(language.token)
         return tokens_list
+    
+# bins a language according to a file "languages.txt"
+def bin_language(language, good_bin, okay_bin, trash_bin):     
+    def bin_it(quality):
+        if quality == "good":
+            good_bin << language
+        elif quality == "okay":
+            okay_bin << language
+        elif quality == "trash":
+            trash_bin << language
+        else:
+            f.close()
+            raise LookupError("quality \"" + entry[2] + "\" is not valid")
+    
+    # opens the list of tokens
+    try:
+        f = open("language_tokens.txt", 'r+')
+        
+        for entry in f.readlines():
+            entry = entry.split(',')
+        
+            # if token found, bin it appropriately
+            if entry[0] == language.token:
+                bin_it(entry[1])
+                language.description = entry[2].rstrip()
+                return
+        
+    except FileNotFoundError:
+        f = open("language_tokens.txt", 'w')
+        
+    '''
+    # searches "languages.txt" for a matching token
+    for entry in f.readlines():
+        entry = entry.split(',')
+        
+        # if token found, bin it appropriately
+        if entry[0] == language.token:
+            bin_it(entry[1])
+            language.description = entry[2].rstrip()
+            return
+    '''
+    # token not found
+    add_to_bin = None
+    while add_to_bin != 'y' and add_to_bin != 'n':
+        add_to_bin = input("Token \"" + language.token + "\" not recognized. Add to bin? (y/n): ")
+        
+        # create new token entry
+        if add_to_bin == 'y':
+            quality = None
+            while quality != "good" and quality != "okay" and quality != "trash":
+                quality = input("Language quality (good, okay, trash): ")
+            if language.description == None:
+                language.description = input("Language description: ")
+            f.write(language.token + ',' + quality + ',' + language.description + '\n')
+            bin_it(quality)
+        
+    f.close()
+    
+    # token,description,quality

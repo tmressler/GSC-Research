@@ -21,32 +21,15 @@ data = data_file.sheet_by_index(0)
 
 # creates a big for all languages (not sure how to sort the file we have yet)
 good_bin = Bin()
+okay_bin = Bin()
 trash_bin = Bin()
 
 # creates langauges and adds them to bin
 rows = data.get_rows()
 next(rows)
 for row in rows:
-    language = Language(row[20].value, None, (row[0].value, row[1].value, row[2].value, row[3].value))
-    if language.token == 'LHLLSHSL':
-        language.description = 'totally faithful'
-        good_bin << language
-    elif language.token == 'LLLLSHSL':
-        language.description = 'lowering of LH vowels'
-        good_bin << language
-    elif language.token == 'SHLLSHSL':
-        language.description = 'shortening of LH vowels'
-        good_bin << language
-    elif language.token == 'SHSLSHSL':
-        language.description = 'shortening of long vowels'
-        good_bin << language
-    elif language.token == 'SLSLSHSL':
-        language.description = 'lowering of LH vowels + shortening of long vowels'
-        good_bin << language
-    else:
-        language.description = 'lowering and shortening of LH vowels'
-        trash_bin << language
-   
+    language = Language(row[20].value, (row[0].value, row[1].value, row[2].value, row[3].value), None)
+    bin_language(language, good_bin, okay_bin, trash_bin)
 
     
 '''

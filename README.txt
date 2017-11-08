@@ -2,7 +2,8 @@ GSCbins README
 
 class Language()
 To create a language:
-    language1 = Language("LHO LHC SHO SHC LLC SLC LLO SLO", "totally faithful", (-0.5, -0.5, -1, -1))
+    language1 = Language("LHO LHC SHO SHC LLC SLC LLO SLO", (-0.5, -0.5, -1, -1), "totally faithful")
+    language1 = Language("LHO LHC SHO SHC LLC SLC LLO SLO", (-0.5, -0.5, -1, -1))
 
 To add another set of constraints to a language:
     language1 << (-0.5, -0.6, -1, -1)
