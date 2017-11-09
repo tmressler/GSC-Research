@@ -8,8 +8,8 @@ Created on Mon Oct 30 13:57:31 2017
 class Language():    
     def __init__(self, token, set_of_constraints, description=None):
         self.token = token
-        self.constraints = [set_of_constraints]
         self.description = description
+        self.constraints = [set_of_constraints]
         
     # adds a set of constraints to Language
     def __lshift__(self, set_of_constraints):
@@ -68,18 +68,13 @@ class Bin():
     def empty(self):
         self.languages = []
         
-    # loads a bin from a text file
     def load(self, filename):
         f = open(filename, 'r')
-        for entry in f.readlines():
-            entry = entry.split(',')
-            self << Language(entry[0], entry[2].rstrip(), entry[1])
         
-    # saves a bin to a text file
     def save(self, filename):
         f = open(filename, 'w')
         for language in self.languages:
-            f.write(language.token + ',' + language.description + ',' + language.constraints.data.tolist() + '\n')
+            pass
        
     # returns the address of the token argument
     def token(self, token):
