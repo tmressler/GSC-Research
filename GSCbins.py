@@ -17,26 +17,32 @@ except ImportError:
 class Language():    
     def __init__(self, token, set_of_constraints, description=None):
         self.token = token
-        self.constraints = [set_of_constraints] # KAREN: change to intializing a one-row array
+        self.constraints = numpy.array([set_of_constraints])
         self.description = description
         
     # adds a set of constraints to Language
     def __lshift__(self, set_of_constraints):
-        self.constraints.append(set_of_constraints) # KAREN: change to adding a row to the constraints array (I'd use numpy.vstack)
+        self.constraints = numpy.vstack((self.constraints, set_of_constraints))
         
     # returns True if a set of costraints is in Language
     def __contains__(self, set_of_constraints):
-        if set_of_constraints in self.constraints:  # KAREN: change to looking for set_of_contraints in constraints array (using self.constraints.data.tolist() is probably best but there might be a more efficient way; you'd also have to convert set_of_constraints to a list from a tuple if a tuple is entered which is just list(set_of_constraints))
+        if list(set_of_constraints) in self.constraints.data.tolist():
             return True
         else:
             return False
     
-    def constraints_range(self, column=None):
-        pass # KAREN: I'd have this return the min and max of either a given column or for every column (depending if column=None or not) in the constraints array (https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.amax.html)
+    # returns a tuple of the minimum and maximum constraint(s)
+    def constraints_range(self, constraint=None):
+        min_constraints = numpy.amin(self.constraints, axis=0)
+        max_constraints = numpy.amax(self.constraints, axis=0)
+        if constraint == None:
+            return (min_constraints, max_constraints)
+        else:
+            return (min_constraints[constraint], max_constraints[constraint])
      
     # returns the number of constraints
     def count(self):
-        return self.constraints.shape[0] # KAREN: I already did this on accident when I was looking other things up
+        return self.constraints.shape[0]
        
 class Bin():
     def __init__(self):
@@ -48,7 +54,7 @@ class Bin():
         for language in self.languages:
             # if token matches, add the constraints to token
             if new_language.token == language.token:
-                numpy.concatenate((language.constraints, new_language.constraints), axis=0)
+                language.constraints = numpy.concatenate((language.constraints, new_language.constraints), axis=0)
                 return
 
         # addes language to bin
@@ -78,16 +84,19 @@ class Bin():
         
     # loads a bin from a text file
     def load(self, filename):
+        import ast
         f = open(filename, 'r')
         for entry in f.readlines():
-            entry = entry.split(',')
-            self << Language(entry[0], entry[2].rstrip(), entry[1])
+            entry = entry.split(',', 2)
+            language = Language(entry[0], None, entry[1])
+            language.constraints = numpy.array(ast.literal_eval(entry[2].rstrip()))
+            self << language
         
     # saves a bin to a text file
     def save(self, filename):
         f = open(filename, 'w')
         for language in self.languages:
-            f.write(language.token + ',' + language.description + ',' + language.constraints.data.tolist() + '\n')
+            f.write(language.token + ',' + str(language.description) + ',' + str(language.constraints.data.tolist()) + '\n')
        
     # returns the address of the token argument
     def token(self, token):
