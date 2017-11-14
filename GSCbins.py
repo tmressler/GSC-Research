@@ -3,6 +3,7 @@
 Created on Mon Oct 30 13:57:31 2017
 
 @author: Karen Liou, Tim Ressler
+@version: 1.01
 """
  
 # import libaries  
@@ -87,7 +88,7 @@ class Bin():
         import ast
         f = open(filename, 'r')
         for entry in f.readlines():
-            entry = entry.split(',', 2)
+            entry = entry.split('|', 2)
             language = Language(entry[0], None, entry[1])
             language.constraints = numpy.array(ast.literal_eval(entry[2].rstrip()))
             self << language
@@ -96,7 +97,7 @@ class Bin():
     def save(self, filename):
         f = open(filename, 'w')
         for language in self.languages:
-            f.write(language.token + ',' + str(language.description) + ',' + str(language.constraints.data.tolist()) + '\n')
+            f.write(language.token + '|' + str(language.description) + '|' + str(language.constraints.data.tolist()) + '\n')
        
     # returns the address of the token argument
     def token(self, token):
@@ -130,7 +131,7 @@ def bin_language(language, good_bin, okay_bin, trash_bin):
         f = open("language_tokens.txt", 'r+')
         
         for entry in f.readlines():
-            entry = entry.split(',')
+            entry = entry.split('|')
         
             # if token found, bin it appropriately
             if entry[0] == language.token:
@@ -153,7 +154,7 @@ def bin_language(language, good_bin, okay_bin, trash_bin):
                 quality = input("Language quality (good, okay, trash): ")
             if language.description == None:
                 language.description = input("Language description: ")
-            f.write(language.token + ',' + quality + ',' + language.description + '\n')
+            f.write(language.token + '|' + quality + '|' + language.description + '\n')
             bin_it(quality)
         
     f.close()
