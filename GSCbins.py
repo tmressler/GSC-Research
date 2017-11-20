@@ -3,7 +3,10 @@
 Created on Mon Oct 30 13:57:31 2017
 
 @author: Karen Liou, Tim Ressler
-@version: 1.01
+@version: 1.03
+
+changelog:
+    1.03: first implementatoin of constraint_space()
 """
  
 # import libaries  
@@ -74,7 +77,32 @@ class Bin():
             if list(set_of_constraints) in language.constraints.data.tolist():
                 return language
         raise IndexError("set of constraints is not in bin")
-    
+        
+    # returns a list of tokens that are in a range, along with their constraints
+    def constraint_space(self, lower_limits, upper_limits):
+        space_contents = []
+        
+        # check each language
+        for language in self.languages:
+            intersecting_constraints = []
+            
+            # check every set of constraints for a language
+            for set_of_constraints in language.constraints.data.tolist():
+                constraint_number = 0
+                constraints_in_range = 0
+                
+                # check each constraint to be in range
+                for constraint in set_of_constraints:
+                    if constraint >= lower_limits[constraint_number] and constraint <= upper_limits[constraint_number]:
+                        constraints_in_range += 1
+                    constraint_number += 1
+                if constraints_in_range == len(set_of_constraints):
+                    intersecting_constraints.append(set_of_constraints)
+                    
+            space_contents.append([language.token, intersecting_constraints])
+            
+        return space_contents
+                
     # returns the number of languages in a bin
     def count(self):
         return len(self.languages)
