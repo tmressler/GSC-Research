@@ -6,7 +6,14 @@ Created on Mon Oct 30 13:57:31 2017
 @version: 1.03
 
 changelog:
-    1.03: first implementatoin of constraint_space()
+    1.03: first implementation of constraint_space()
+    2.00: integrated convex hulls and Delaunay triangulation
+            - old Language.__contains__() changed to Language.constraint()
+            - new Language.__contains__() now determines if point is in convex hull
+            - Language.language() returns the set of contraints of a language found in the conxev hull
+                of the base language
+            - Language.volume() calculates volume of convex hull
+            - Bin.plot() plots the languages in a bin using two dimensions
 """
  
 # import libaries  
@@ -17,23 +24,41 @@ except ImportError:
     pip.main(['install', 'numpy'])
     import numpy
     print()
+try:
+    from scipy.spatial import ConvexHull, Delaunay
+except ImportError:
+    import pip
+    pip.main(['install', 'scipy'])
+    from scipy.spatial import ConvexHull, Delaunay
+    print()
      
-class Language():    
+class Language():        
     def __init__(self, token, set_of_constraints, description=None):
         self.token = token
         self.constraints = numpy.array([set_of_constraints])
         self.description = description
         
-    # adds a set of constraints to Language
+    # adds a set of constraints to the language
     def __lshift__(self, set_of_constraints):
         self.constraints = numpy.vstack((self.constraints, set_of_constraints))
-        
-    # returns True if a set of costraints is in Language
+
+    # returns True if a set of constraints is in the convex hull of the language using Delauney triangulation
     def __contains__(self, set_of_constraints):
+        return Delaunay(self.constraints).find_simplex(set_of_constraints) >= 0
+        
+    # returns True if a set of costraints is in the language
+    def constraint(self, set_of_constraints):
         if list(set_of_constraints) in self.constraints.data.tolist():
             return True
         else:
             return False
+        
+    def language(self, language):
+        intersecting_constraints = []
+        for set_of_constraints in language.constraints.tolist():
+            if set_of_constraints in self:
+                intersecting_constraints.append(set_of_constraints)
+        return intersecting_constraints
     
     # returns a tuple of the minimum and maximum constraint(s)
     def constraints_range(self, constraint=None):
@@ -46,7 +71,15 @@ class Language():
      
     # returns the number of constraints
     def count(self):
-        return self.constraints.shape[0]
+        return self.constraints.shape[0]          
+    
+    # returns the verticies of the language's convex hull
+    def vertices(self):
+        return self.constraints[ConvexHull(self.constraints).vertices]
+    
+    # returns the volume of the language's convex hull
+    def volume(self):
+        return ConvexHull(self.constraints).volume
        
 class Bin():
     def __init__(self):
@@ -120,6 +153,14 @@ class Bin():
             language = Language(entry[0], None, entry[1])
             language.constraints = numpy.array(ast.literal_eval(entry[2].rstrip()))
             self << language
+         
+    # plots the languages in the bin using two constraints
+    def plot(self, first_constraint, second_constraint):
+        import matplotlib.pyplot as matplot
+        for language in self.languages:
+            matplot.plot(language.constraints[:,first_constraint], language.constraints[:,second_constraint], 'o')
+            for simplex in ConvexHull(language.constraints[:,[first_constraint, second_constraint]]).simplices:
+                matplot.plot(language.constraints[simplex, first_constraint], language.constraints[simplex, second_constraint], 'k-')
         
     # saves a bin to a text file
     def save(self, filename):
@@ -186,3 +227,32 @@ def bin_language(language, good_bin, okay_bin, trash_bin):
             bin_it(quality)
         
     f.close()
+    
+'''
+# FOR TESTING CONVEX HULLS
+def generate_cube():
+    cube = Language('cube', (0,0,0))
+    cube << (0,0,1)
+    cube << (0,1,0)
+    cube << (0,1,1)
+    cube << (1,0,0)
+    cube << (1,0,1)
+    cube << (1,1,0)
+    cube << (1,1,1)
+    
+    return cube
+
+def generate_points():
+    points = Language('points', (.1,.1,.1))
+    points << (-1,0,0)
+    points << (0,0,0)
+    points << (0.1, -0.3, -0.4)
+    
+    return points
+    
+cube = generate_cube()
+points = generate_points()
+the_bin = Bin()
+the_bin << cube
+the_bin << points
+'''
