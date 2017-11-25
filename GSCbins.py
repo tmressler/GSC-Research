@@ -3,7 +3,7 @@
 Created on Mon Oct 30 13:57:31 2017
 
 @author: Karen Liou, Tim Ressler
-@version: 2.1
+@version: 2.2
     
 """
  
