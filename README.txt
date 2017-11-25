@@ -18,6 +18,8 @@ Update 2.1: added more plotting functions to Bin()
     - added legends to all plotting functions
     - added background color to all plots
 
+Update 2.2: added an optional offset argument to Bin.plot_bin() and Bin.plot_language()
+
 All loads and saves will work from 1.0.
 
 --------------------------------------------------------------------------------
@@ -121,13 +123,13 @@ To load a bin of languages from a .txt file:
 NEW: To create a 2D plot of all the languages in the bin using two constraints as axes:
     In [27]: good_bin.plot_bin(0, 1)
     Out[27]: 
-    In [28]: good_bin.plot_bin(2, 3, 0)
+    In [28]: good_bin.plot_bin(2, 3, alpha=0.5, offset=0)
     Out[28]: 
 
 NEW: To create a 2D plot of specific languages in the bin using two constraints as axes:
     In [29]: good_bin.plot_bin(0, 1)
     Out[29]: 
-    In [30]: good_bin.plot_bin(0, 1, 1)
+    In [30]: good_bin.plot_bin(0, 1, alpha=0, offset=0)
     Out[30]: 
 
 To return the address of a specific language token in a bin:

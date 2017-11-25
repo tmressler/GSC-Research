@@ -181,14 +181,14 @@ class Bin():
             self << language
          
     # plots the languages in the bin using two constraints
-    def plot_bin(self, first_constraint, second_constraint, alpha=0.1):
-        self.plot_language(self.languages, first_constraint, second_constraint, alpha)
+    def plot_bin(self, first_constraint, second_constraint, alpha=0.1, offset=0.05):
+        self.plot_language(self.languages, first_constraint, second_constraint, alpha, offset)
         
     # plots one or more languages in the bin on a two dimensional graph
-    def plot_language(self, languages, first_constraint, second_constraint, alpha=0.1):
+    def plot_language(self, languages, first_constraint, second_constraint, alpha=0.1, offset=0.05):
         error_tokens = []
         figure, axes = plt.subplots()
-        color_rotation = 0
+        counter = 0
         
         # if input is a Language, change to list format
         if isinstance(languages, Language):
@@ -197,7 +197,7 @@ class Bin():
         for language in languages:
             
             # plots constrain points
-            axes.plot(language.constraints[:,first_constraint], language.constraints[:,second_constraint], 'o', label=language.token)
+            axes.plot(language.constraints[:,first_constraint] + (counter * offset), language.constraints[:,second_constraint], 'o', label=language.token)
             
             # plots convex hull
             try:
@@ -209,10 +209,10 @@ class Bin():
                 codes[len(codes) - 1] = 79
                 vertices.append(vertices[0])
                 path = mpath.Path(vertices, codes)
-                axes.add_patch(mpatches.PathPatch(path, facecolor='C'+str(color_rotation), alpha=alpha))
+                axes.add_patch(mpatches.PathPatch(path, facecolor='C'+str(counter % 10), alpha=alpha))
                 x, y = zip(*path.vertices)
                 line, = axes.plot(x, y, 'k-')
-                color_rotation = (color_rotation + 1) % 10
+                counter += 1
             except QhullError:
                 error_tokens.append(language.token)
                 
