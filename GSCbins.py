@@ -3,17 +3,8 @@
 Created on Mon Oct 30 13:57:31 2017
 
 @author: Karen Liou, Tim Ressler
-@version: 1.03
-
-changelog:
-    1.03: first implementation of constraint_space()
-    2.00: integrated convex hulls and Delaunay triangulation
-            - old Language.__contains__() changed to Language.constraint()
-            - new Language.__contains__() now determines if point is in convex hull
-            - Language.language() returns the set of contraints of a language found in the conxev hull
-                of the base language
-            - Language.volume() calculates volume of convex hull
-            - Bin.plot() plots the languages in a bin using two dimensions
+@version: 2.1
+    
 """
  
 # import libaries  
@@ -26,10 +17,20 @@ except ImportError:
     print()
 try:
     from scipy.spatial import ConvexHull, Delaunay
+    from scipy.spatial.qhull import QhullError
 except ImportError:
     import pip
     pip.main(['install', 'scipy'])
     from scipy.spatial import ConvexHull, Delaunay
+    print()
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.path as mpath
+    import matplotlib.patches as mpatches
+except ImportError:
+    import pip
+    pip.main(['install', 'matplotlib'])
+    import matplotlib.pyplot as plt
     print()
      
 class Language():        
@@ -53,13 +54,6 @@ class Language():
         else:
             return False
         
-    def language(self, language):
-        intersecting_constraints = []
-        for set_of_constraints in language.constraints.tolist():
-            if set_of_constraints in self:
-                intersecting_constraints.append(set_of_constraints)
-        return intersecting_constraints
-    
     # returns a tuple of the minimum and maximum constraint(s)
     def constraints_range(self, constraint=None):
         min_constraints = numpy.amin(self.constraints, axis=0)
@@ -71,7 +65,39 @@ class Language():
      
     # returns the number of constraints
     def count(self):
-        return self.constraints.shape[0]          
+        return self.constraints.shape[0]   
+
+    # checks if another language has sets of constraints in the language's convex hull
+    def language(self, language):
+        intersecting_constraints = []
+        for set_of_constraints in language.constraints.tolist():
+            if set_of_constraints in self:
+                intersecting_constraints.append(set_of_constraints)
+        return intersecting_constraints
+            
+    # plots the language on two axes
+    def plot(self, first_constraint, second_constraint, alpha=0.1):
+        figure, axes = plt.subplots()
+        
+        # plots constraint points
+        axes.plot(self.constraints[:,first_constraint], self.constraints[:,second_constraint], 'o', label=self.token)
+        
+        # plots convex hull
+        try:
+            codes = [1]
+            vertices = []
+            for index in ConvexHull(self.constraints[:,[first_constraint, second_constraint]]).vertices:
+                codes.append(2)
+                vertices.append(self.constraints[index, [first_constraint, second_constraint]].tolist())
+            codes[len(codes) - 1] = 79
+            vertices.append(vertices[0])
+            path = mpath.Path(vertices, codes)
+            axes.add_patch(mpatches.PathPatch(path, alpha=alpha))
+            x, y = zip(*path.vertices)
+            line, = axes.plot(x, y, 'k-')
+            
+        except QhullError:
+            print("Note: language has no convex hull in these dimensions")
     
     # returns the verticies of the language's convex hull
     def vertices(self):
@@ -155,12 +181,46 @@ class Bin():
             self << language
          
     # plots the languages in the bin using two constraints
-    def plot(self, first_constraint, second_constraint):
-        import matplotlib.pyplot as matplot
-        for language in self.languages:
-            matplot.plot(language.constraints[:,first_constraint], language.constraints[:,second_constraint], 'o')
-            for simplex in ConvexHull(language.constraints[:,[first_constraint, second_constraint]]).simplices:
-                matplot.plot(language.constraints[simplex, first_constraint], language.constraints[simplex, second_constraint], 'k-')
+    def plot_bin(self, first_constraint, second_constraint, alpha=0.1):
+        self.plot_language(self.languages, first_constraint, second_constraint, alpha)
+        
+    # plots one or more languages in the bin on a two dimensional graph
+    def plot_language(self, languages, first_constraint, second_constraint, alpha=0.1):
+        error_tokens = []
+        figure, axes = plt.subplots()
+        color_rotation = 0
+        
+        # if input is a Language, change to list format
+        if isinstance(languages, Language):
+            languages = [languages]
+            
+        for language in languages:
+            
+            # plots constrain points
+            axes.plot(language.constraints[:,first_constraint], language.constraints[:,second_constraint], 'o', label=language.token)
+            
+            # plots convex hull
+            try:
+                codes = [1]
+                vertices = []
+                for index in ConvexHull(language.constraints[:,[first_constraint, second_constraint]]).vertices:
+                    codes.append(2)
+                    vertices.append(language.constraints[index, [first_constraint, second_constraint]].tolist())
+                codes[len(codes) - 1] = 79
+                vertices.append(vertices[0])
+                path = mpath.Path(vertices, codes)
+                axes.add_patch(mpatches.PathPatch(path, facecolor='C'+str(color_rotation), alpha=alpha))
+                x, y = zip(*path.vertices)
+                line, = axes.plot(x, y, 'k-')
+                color_rotation = (color_rotation + 1) % 10
+            except QhullError:
+                error_tokens.append(language.token)
+                
+        # creates legend
+        axes.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='x-large')
+        
+        if len(error_tokens) > 0:
+            print("Note - languages with no convex hull in these dimensions: " + ', '.join(error_tokens))
         
     # saves a bin to a text file
     def save(self, filename):
