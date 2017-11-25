@@ -1,10 +1,7 @@
 GSCbins README
 
 Update 2.0
-Lots of changes since the first edition. The main change is the integration of convex hulls. This allows us to treat
-arrays of constraints as shapes, instead of point clouds. Note that for convex hulls to be calculated, there must be
-more sets of constraints than there are constraints, and those sets cannot form a "plane" or the equivalent in
-higher dimensions.
+Lots of changes since the first edition. The main change is the integration of convex hulls. This allows us to treat arrays of constraints as shapes, instead of point clouds. Note that for convex hulls to be calculated, there must be more sets of constraints than there are constraints, and those sets cannot form a "plane" or the equivalent in higher dimensions.
 
     - old Language.__contains__() changed to Language.constraint()
     - new Language.__contains__() now determines if point is in the convex hull of the language
@@ -56,13 +53,11 @@ To count number of sets of constraints for a language:
     In [11]: language1.count()
     Out[11]: 5
 
-NEW: To return the sets of constraints of another language's sets of constraints that lie in the convex hull
-of the language:
+NEW: To return the sets of constraints of another language's sets of constraints that lie in the convex hull of the language:
     In [12]: language1.language(language2)
     Out[12]: [[-0.5, -0.5, -1.0, -1.0]]
 
-NEW: To create a 2D plot of the language using two constraints as axes
-(first constraint, second constraint, optional alpha):
+NEW: To create a 2D plot of the language using two constraints as axes (first constraint, second constraint, optional alpha):
     In [13]: language1.plot(0, 1)
     Out[13]:
     In [14]: language1.plot(0, 1, 0)
@@ -121,8 +116,7 @@ To save a bin to a .txt file:
 To load a bin of languages from a .txt file:
     In [26]: good_bin.load("good_bin.txt")
 
-    Note: Loading a bin does not overwrite the current contents. Loading the same file twice will
-        create duplicate constraints for each language token. You might want to empty a bin first.
+    Note: Loading a bin does not overwrite the current contents. Loading the same file twice will create duplicate constraints for each language token. You might want to empty a bin first.
 
 NEW: To create a 2D plot of all the languages in the bin using two constraints as axes:
     In [27]: good_bin.plot_bin(0, 1)
